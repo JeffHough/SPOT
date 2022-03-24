@@ -1,0 +1,6 @@
+Test 1:
+Initial condition set 3.
+kp = 5
+sample rate = 10Hz
+no filters
+a_prime = 0.2
