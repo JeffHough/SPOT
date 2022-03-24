@@ -63,8 +63,8 @@ Kd_xb                          = 5;
 Kp_yb                          = 2;
 Kd_yb                          = 5;
 
-Kp_tb                          = 0.1;
-Kd_tb                          = 0.4;
+Kp_tb                          = 0.017;
+Kd_tb                          = 0.1;
 
 % Initialize the PID gains for the BLUE platform:
 
@@ -109,7 +109,7 @@ serverRate                     = 2*baseRate;       % 10 Hz
 kd = 5.0;
 
 % Filter cutoff frequency:
-f_cutoff = 10;
+f_cutoff = 1.0;
 w_filter = 2*pi*f_cutoff; % [rad/s]
 
 num = w_filter^2;
@@ -238,13 +238,13 @@ o_hat_prime         = [0;1;0];          % Orientation of the docking cone.
 u_max_scalar = 0.4;                                 % Approx max force.
 a_max               = u_max_scalar/BLACKMass;       % Max accel given max force.
 
-%% SELECT INITIAL CONDITIONS:
+%% SELECT CONDITIONS:
 
 % Setup all of our initial conditions:
 ICStructure = getICStructure();
 
 % Select the conditions:
-initialConditionSet = 3;
+initialConditionSet = 5;
 
 w_body = ICStructure.w_body{initialConditionSet};
 rT_I0 = ICStructure.rT_I0{initialConditionSet};
