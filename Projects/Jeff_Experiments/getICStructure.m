@@ -75,7 +75,7 @@ ICStructure.rC_I0{4} = [0.9*xLength;yLength/2+0.5;pi/2]; % [m ; m ; rads]
 
 %% IC 5: 
 % Spin rate of the spacecraft:
-ICStructure.w_body{5} = 6.0 * d2r;
+ICStructure.w_body{5} = 3.0 * d2r;
 
 % Initial position of the Target:
 ICStructure.rT_I0{5} = [...

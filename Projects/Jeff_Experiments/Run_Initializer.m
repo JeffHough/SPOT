@@ -82,17 +82,6 @@ Kd_tblue                       = 0.4;
 noise_variance_RED             = 0;
 noise_variance_BLACK           = 0;
 noise_variance_BLUE            = 0;
-
-%% CUSTOM CONTROLLER DESIGN:
-
-% Chaser spacecraft control gain.
-kd = 5.0; % P gain for the controller.
-
-% Pick the home states and the maximum amount of time we expect
-% an experiment to run:
-Phase3_SubPhase4_Duration = 3.0*60;
-home_states_RED = [xLength/2+0.4; yLength/2; 0]; % [m; m; rad]
-home_states_BLACK = [xLength/2-0.4; yLength/2; 0]; % [m; m; rad]
     
 
 %% Set the base sampling rate: 
@@ -103,7 +92,7 @@ home_states_BLACK = [xLength/2-0.4; yLength/2; 0]; % [m; m; rad]
 % folder, and change line 204 from owl.frequency(10) to 
 % owl.frequency(serverRate):
 
-baseRate                       = 0.05;      % 20 Hz
+baseRate                       = 0.1;      % [seconds between samples]
 
 %% Set the frequency that the data is being sent up from the PhaseSpace:
 
@@ -112,7 +101,34 @@ baseRate                       = 0.05;      % 20 Hz
 % setting this equal to or higher then the baseRate causes the data to
 % buffer in the UDP send.
 
-serverRate                     = 0.1;       % 10 Hz
+serverRate                     = 2*baseRate;       % 10 Hz
+
+%% CUSTOM CONTROLLER DESIGN:
+
+% Chaser spacecraft control gain.
+kd = 5.0;
+
+% Filter cutoff frequency:
+f_cutoff = 10;
+w_filter = 2*pi*f_cutoff; % [rad/s]
+
+num = w_filter^2;
+den = [1 sqrt(2)*w_filter w_filter^2];
+
+sys = tf(num, den);
+sys_d = c2d(sys, baseRate, 'tustin');
+
+bode(sys_d)
+grid on
+
+num_d = sys_d.num{1};
+den_d = sys_d.den{1};
+
+% Pick the home states and the maximum amount of time we expect
+% an experiment to run:
+Phase3_SubPhase4_Duration = 3.0*60;
+home_states_RED = [xLength/2+0.4; yLength/2; 0]; % [m; m; rad]
+home_states_BLACK = [xLength/2-0.4; yLength/2; 0]; % [m; m; rad]
 
 %% Set the duration of each major phase in the experiment, in seconds:
 
@@ -228,7 +244,7 @@ a_max               = u_max_scalar/BLACKMass;       % Max accel given max force.
 ICStructure = getICStructure();
 
 % Select the conditions:
-initialConditionSet = 4;
+initialConditionSet = 3;
 
 w_body = ICStructure.w_body{initialConditionSet};
 rT_I0 = ICStructure.rT_I0{initialConditionSet};
