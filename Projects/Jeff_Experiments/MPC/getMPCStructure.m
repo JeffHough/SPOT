@@ -1,11 +1,10 @@
-function MPCStructure = getMPCStructure(m, b_cone, R, Q, Q_final, u_max_scalar, v_max, tracking_point)
+function MPCStructure = getMPCStructure(m, b_cone, R, Q, Q_final, u_max_scalar, v_max, tracking_point, ControlStep)
 % CHOOSE THE STEP HORIZON:
-Np = 5;
+Np = 10;
 MPCStructure.Np = Np;
 
 % CHOOSE THE CONTROL STEP:
-ControlFrequency = 20;
-MPCStructure.ControlStep = 1/ControlFrequency;
+MPCStructure.ControlStep = ControlStep;
 
 % Now, get the future_time_vector:
 MPCStructure.future_time_vector = (1:Np) * MPCStructure.ControlStep;
@@ -23,7 +22,6 @@ sys_d = c2d(sys, MPCStructure.ControlStep);
 
 A_d = sys_d.A;
 B_d = sys_d.B;
-b_cone = b_cone;
 
 % Store into the MPC structure.
 MPCStructure.A_d = A_d;

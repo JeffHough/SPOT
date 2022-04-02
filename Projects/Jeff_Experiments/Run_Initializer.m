@@ -79,8 +79,8 @@ Kd_tblue                       = 0.4;
 
 % Set the noise variance level for the RED and BLACK platforms:
 
-noise_variance_RED             = 0;
-noise_variance_BLACK           = 0;
+noise_variance_RED             = 1e-5;
+noise_variance_BLACK           = 1e-5;
 noise_variance_BLUE            = 0;
     
 
@@ -92,7 +92,7 @@ noise_variance_BLUE            = 0;
 % folder, and change line 204 from owl.frequency(10) to 
 % owl.frequency(serverRate):
 
-baseRate                       = 0.1;      % [seconds between samples]
+baseRate                       = 0.05;      % [seconds between samples]
 
 %% Set the frequency that the data is being sent up from the PhaseSpace:
 
@@ -102,27 +102,6 @@ baseRate                       = 0.1;      % [seconds between samples]
 % buffer in the UDP send.
 
 serverRate                     = 2*baseRate;       % 10 Hz
-
-%% CUSTOM CONTROLLER DESIGN:
-
-% Chaser spacecraft control gain.
-kd = 5.0;
-
-% Filter cutoff frequency:
-f_cutoff = 1.0;
-w_filter = 2*pi*f_cutoff; % [rad/s]
-
-num = w_filter^2;
-den = [1 sqrt(2)*w_filter w_filter^2];
-
-sys = tf(num, den);
-sys_d = c2d(sys, baseRate, 'tustin');
-
-bode(sys_d)
-grid on
-
-num_d = sys_d.num{1};
-den_d = sys_d.den{1};
 
 % Pick the home states and the maximum amount of time we expect
 % an experiment to run:
@@ -226,8 +205,32 @@ thruster_dist2CG_BLUE         = [83.42;-52.58;55.94;-60.05;54.08;-53.92;77.06;-5
 W_CLVF = [1,100];
 W_LVF = [1,100];
 
-%% TARGET SPACECRAFT PHYSICAL CHARACTERISTICS: 
+%% SELECT THE FILTER GAINS FOR THE POSITION:
+% Chaser spacecraft control gain.
+kd = 8.0;
 
+% Filter cutoff frequency:
+f_cutoff = 2.0;
+w_filter = 2*pi*f_cutoff; % [rad/s]
+
+% 1st order option:
+% num = w_filter;
+% den = [1 w_filter];
+
+% 2nd order option:
+num = w_filter^2;
+den = [1 sqrt(2)*w_filter w_filter^2];
+
+sys = tf(num, den);
+sys_d = c2d(sys, baseRate, 'tustin');
+
+bode(sys_d)
+grid on
+
+num_d = sys_d.num{1};
+den_d = sys_d.den{1};
+
+%% TARGET SPACECRAFT PHYSICAL CHARACTERISTICS: 
 % PARAMETERS I CANNOT CHANGE (physical characteristics of target).
 theta_d             = 30*d2r;           % Angle of the docking cone.
 d                   = [0.16;0.542;0];   % docking position.
@@ -239,7 +242,6 @@ u_max_scalar = 0.4;                                 % Approx max force.
 a_max               = u_max_scalar/BLACKMass;       % Max accel given max force.
 
 %% SELECT CONDITIONS:
-
 % Setup all of our initial conditions:
 ICStructure = getICStructure();
 
@@ -270,7 +272,6 @@ timeThreshold           = 5;                        % 5 seconds staying in the r
 cntThreshold            = timeThreshold/baseRate;
         
 %% LVF DESIGN PROCEDURE
-
 % Safe distance to stay away from the docking cone:
 a_prime = 0.2; % Initial guess for a
 
@@ -385,7 +386,7 @@ Q_final = Q*100;
 % Get the A_cone and b_cone [body frame] approximation of the docking cone:
 C_CB = C3(pi/2);
 [A_cone, b_cone] = return_square_cone(theta_d, d, C_CB);
-MPCStructure = getMPCStructure(BLACKMass, b_cone, R, Q, Q_final, u_max_scalar, kc, aTimesOVec);
+MPCStructure = getMPCStructure(BLACKMass, b_cone, R, Q, Q_final, u_max_scalar, kc, aTimesOVec, baseRate);
 
 %%  Set the drop, initial, and home positions for each platform:
 

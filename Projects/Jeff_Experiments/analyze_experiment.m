@@ -4,9 +4,15 @@ close all
 clear
 
 % Pick the file:
-fileName = "CLVF_9_1.mat";
+% fileName = "CLVF_9_1.mat";
+fileName = "Saved Data/SimulationData_2022_4_1_22_52/dataPacket_SIM.mat";
 data = load(fileName);
-data = data.rt_dataPacket;
+
+try % Actual experiment data:
+    data = data.rt_dataPacket;
+catch % Simulation data:
+    data = data.dataPacket;
+end
 
 % PARAMETERS I CANNOT CHANGE (physical characteristics of target).
 d2r = pi/180;
@@ -14,6 +20,9 @@ theta_d             = 30*d2r;           % Angle of the docking cone.
 d                   = [0.16;0.542;0];   % docking position.
 d_norm              = sqrt(sum(d.^2));  % Norm of the docking position.
 o_hat_prime         = [0;1;0];          % Orientation of the docking cone.
+
+left_cone_point = d + C3(theta_d)*o_hat_prime;
+right_cone_point = d + C3(-theta_d)*o_hat_prime;
 
 % Parameters for the radius for docking:
 a = 0.7591; % radius for CLVF section.
@@ -104,6 +113,8 @@ plot([d(1), d(1) + o_hat_prime(1)], [d(2), d(2) + o_hat_prime(2)], 'r--','Displa
 plot(clvf_circle_x, clvf_circle_y, 'r-', "DisplayName","CLVF Circle");
 plot(lvf_circle_x, lvf_circle_y, 'r-',"DisplayName","LVF Circle");
 plot(acceptable_circle_x, acceptable_circle_y, 'r-', "DisplayName","Acceptable Radius");
+plot([d(1), left_cone_point(1)],[d(2), left_cone_point(2)],'r-', "HandleVisibility","off");
+plot([d(1), right_cone_point(1)],[d(2), right_cone_point(2)],'r-','DisplayName','Docking Cone');
 title("Relative position");
 xlabel("X Position (m)");
 ylabel("Y Position (m)");
