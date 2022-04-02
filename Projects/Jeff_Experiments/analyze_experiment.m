@@ -5,7 +5,9 @@ clear
 
 % Pick the file:
 % fileName = "CLVF_9_1.mat";
-fileName = "Saved Data/SimulationData_2022_4_1_22_52/dataPacket_SIM.mat";
+% fileName = "Saved Data/SimulationData_2022_4_1_22_52/dataPacket_SIM.mat";
+% fileName = "Saved Data/SimulationData_2022_4_1_23_15/dataPacket_SIM.mat";
+fileName = "Saved Data/SimulationData_2022_4_1_23_19/dataPacket_SIM.mat"; ... from slow sim [1 deg/s]
 data = load(fileName);
 
 try % Actual experiment data:

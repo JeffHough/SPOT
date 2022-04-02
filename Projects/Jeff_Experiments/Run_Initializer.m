@@ -207,10 +207,10 @@ W_LVF = [1,100];
 
 %% SELECT THE FILTER GAINS FOR THE POSITION:
 % Chaser spacecraft control gain.
-kd = 8.0;
+kd = 15.0;
 
 % Filter cutoff frequency:
-f_cutoff = 2.0;
+f_cutoff = 1.0;
 w_filter = 2*pi*f_cutoff; % [rad/s]
 
 % 1st order option:

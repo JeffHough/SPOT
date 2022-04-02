@@ -18,7 +18,7 @@ ICStructure.rC_I0 = {};
 
 %% IC 1: 
 % Spin rate of the spacecraft:
-ICStructure.w_body{1} = 3.0 * d2r;
+ICStructure.w_body{1} = 1.0 * d2r;
 
 % Initial position of the Target:
 ICStructure.rT_I0{1} = [...
@@ -32,7 +32,7 @@ ICStructure.rC_I0{1} = [0.9*xLength;yLength/2-0.5;pi/2]; % [m ; m ; rads]
 
 %% IC 2:
 % Spin rate of the spacecraft:
-ICStructure.w_body{2} = -5.0 * d2r;
+ICStructure.w_body{2} = -2.0 * d2r;
 
 % Initial position of the Target:
 ICStructure.rT_I0{2} = [...
@@ -47,7 +47,7 @@ ICStructure.rC_I0{2} = [0.9*xLength;yLength/2+0.5;pi/2]; % [m ; m ; rads]
 
 %% IC 3:
 % Spin rate of the spacecraft:
-ICStructure.w_body{3} = 6.0 * d2r;
+ICStructure.w_body{3} = 3.0 * d2r;
 
 % Initial position of the Target:
 ICStructure.rT_I0{3} = [...
@@ -61,7 +61,7 @@ ICStructure.rC_I0{3} = [0.9*xLength;yLength/2-0.5;pi/2]; % [m ; m ; rads]
 
 %% IC 4:
 % Spin rate of the spacecraft:
-ICStructure.w_body{4} = 6.75 * d2r;
+ICStructure.w_body{4} = 4.0 * d2r;
 
 % Initial position of the Target:
 ICStructure.rT_I0{4} = [...
@@ -76,7 +76,7 @@ ICStructure.rC_I0{4} = [0.9*xLength;yLength/2-0.5;pi/2]; % [m ; m ; rads]
 
 %% IC 5:
 % Spin rate of the spacecraft:
-ICStructure.w_body{5} = -7.5 * d2r;
+ICStructure.w_body{5} = -5.0 * d2r;
 
 % Initial position of the Target:
 ICStructure.rT_I0{5} = [...
