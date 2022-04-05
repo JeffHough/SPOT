@@ -1,6 +1,6 @@
 function MPCStructure = getMPCStructure(m, b_cone, R, Q, Q_final, u_max_scalar, v_max, tracking_point, ControlStep)
 % CHOOSE THE STEP HORIZON:
-Np = 10;
+Np = 5;
 MPCStructure.Np = Np;
 
 % CHOOSE THE CONTROL STEP:

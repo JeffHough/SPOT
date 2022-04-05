@@ -31,8 +31,36 @@ fprintf('|                                                                |\n')
 fprintf('|----------------------------------------------------------------|\n')
 fprintf('|----------------------------------------------------------------|\n')
 
-%% User-defined constants:
 addpath('Basic Math');
+
+%% Load in any required data:
+
+% Define the mass properties for the RED, BLACK, and BLUE platforms:
+
+model_param(1)                 = 16.9478; % RED Mass
+model_param(2)                 = 0.2709;  % RED Inertia;
+model_param(3)                 = 12.3341; % BLACK Mass
+model_param(4)                 = 0.1880;  % BLACK Inertia
+model_param(5)                 = 12.7621; % BLUE Mass
+model_param(6)                 = 0.1930;  % BLUE Inertia
+
+REDMass = model_param(1);
+REDInertia = model_param(2);
+BLACKMass = model_param(3);
+BLACKInertia = model_param(4);
+
+% Initialize the thruster positions for the RED, BLACK, and BLUE platforms,
+% as well as the expected maximum forces. The expected forces will only 
+% affect the simulations.
+
+F_thrusters_RED               = 0.25.*ones(8,1);
+F_thrusters_BLACK             = 0.25.*ones(8,1);
+F_thrusters_BLUE              = 0.25.*ones(8,1);
+thruster_dist2CG_RED          = [49.92;-78.08;70.46;-63.54;81.08;-50.42;57.44;-75.96];
+thruster_dist2CG_BLACK        = [83.42;-52.58;55.94;-60.05;54.08;-53.92;77.06;-55.94];
+thruster_dist2CG_BLUE         = [83.42;-52.58;55.94;-60.05;54.08;-53.92;77.06;-55.94];
+
+%% User-defined constants:
 
 % Converting from degrees to radians and vis versa:
 
@@ -44,6 +72,10 @@ r2d                            = 180/pi;
 xLength                        = 3.51155;   % [m]
 yLength                        = 2.41935;   % [m]
 
+f_theta = 0.05; % Control bandwidth [Hz]
+zeta = 0.9;
+w_theta = 2*pi*f_theta;
+
 % Initialize the PID gains for the RED platform:
 
 Kp_xr                          = 2;
@@ -52,8 +84,11 @@ Kd_xr                          = 5;
 Kp_yr                          = 2;
 Kd_yr                          = 5;
 
-Kp_tr                          = 0.1;
-Kd_tr                          = 0.4;
+Kp_tr                          = REDInertia*w_theta^2;
+Kd_tr                          = REDInertia*2*zeta*w_theta;
+
+disp("Red Kp == " + num2str(Kp_tr));
+disp("Red Kd == " + num2str(Kd_tr));
 
 % Initialize the PID gains for the BLACK platform:
 
@@ -63,8 +98,8 @@ Kd_xb                          = 5;
 Kp_yb                          = 2;
 Kd_yb                          = 5;
 
-Kp_tb                          = 0.017;
-Kd_tb                          = 0.1;
+Kp_tb                          = BLACKInertia*w_theta^2;
+Kd_tb                          = BLACKInertia*2*zeta*w_theta;
 
 % Initialize the PID gains for the BLUE platform:
 
@@ -105,7 +140,7 @@ serverRate                     = 2*baseRate;       % 10 Hz
 
 % Pick the home states and the maximum amount of time we expect
 % an experiment to run:
-Phase3_SubPhase4_Duration = 3.0*60;
+Phase3_SubPhase4_Duration = 5.0*60;
 home_states_RED = [xLength/2+0.4; yLength/2; 0]; % [m; m; rad]
 home_states_BLACK = [xLength/2-0.4; yLength/2; 0]; % [m; m; rad]
 
@@ -174,43 +209,19 @@ Phase3_SubPhase4_End           = Phase2_End + Phase3_SubPhase1_Duration + ...
                                  Phase3_SubPhase3_Duration +...
                                  Phase3_SubPhase4_Duration + Phase3_SubPhase3_and_a_half;                             
                           
-%% Load in any required data:
 
-% Define the mass properties for the RED, BLACK, and BLUE platforms:
-
-model_param(1)                 = 16.9478; % RED Mass
-model_param(2)                 = 0.2709;  % RED Inertia;
-model_param(3)                 = 12.3341; % BLACK Mass
-model_param(4)                 = 0.1880;  % BLACK Inertia
-model_param(5)                 = 12.7621; % BLUE Mass
-model_param(6)                 = 0.1930;  % BLUE Inertia
-
-REDMass = model_param(1);
-REDInertia = model_param(2);
-BLACKMass = model_param(3);
-BLACKInertia = model_param(4);
-
-% Initialize the thruster positions for the RED, BLACK, and BLUE platforms,
-% as well as the expected maximum forces. The expected forces will only 
-% affect the simulations.
-
-F_thrusters_RED               = 0.25.*ones(8,1);
-F_thrusters_BLACK             = 0.25.*ones(8,1);
-F_thrusters_BLUE              = 0.25.*ones(8,1);
-thruster_dist2CG_RED          = [49.92;-78.08;70.46;-63.54;81.08;-50.42;57.44;-75.96];
-thruster_dist2CG_BLACK        = [83.42;-52.58;55.94;-60.05;54.08;-53.92;77.06;-55.94];
-thruster_dist2CG_BLUE         = [83.42;-52.58;55.94;-60.05;54.08;-53.92;77.06;-55.94];
 
 %% SELECT WEIGHTS FOR PARAMETER OPTIMIZATION:
-W_CLVF = [1,100];
-W_LVF = [1,100];
+% [W_t, W_f]
+W_CLVF = [1e-8,1];
+W_LVF = [1e-8,1];
 
 %% SELECT THE FILTER GAINS FOR THE POSITION:
 % Chaser spacecraft control gain.
 kd = 15.0;
 
 % Filter cutoff frequency:
-f_cutoff = 1.0;
+f_cutoff = 5.0;
 w_filter = 2*pi*f_cutoff; % [rad/s]
 
 % 1st order option:
@@ -246,7 +257,7 @@ a_max               = u_max_scalar/BLACKMass;       % Max accel given max force.
 ICStructure = getICStructure();
 
 % Select the conditions:
-initialConditionSet = 5;
+initialConditionSet = 1;
 
 w_body = ICStructure.w_body{initialConditionSet};
 rT_I0 = ICStructure.rT_I0{initialConditionSet};
@@ -380,13 +391,13 @@ disp("new b is " + num2str(b));
 %% MPC DESIGN PROCEDURE:
 % Select the weighting matrices:
 R = eye(3);
-Q = eye(6)*100;
-Q_final = Q*100;
+Q = diag([1, 1, 1, 10, 10, 10]);
+Q_final = 100*Q;
 
 % Get the A_cone and b_cone [body frame] approximation of the docking cone:
 C_CB = C3(pi/2);
 [A_cone, b_cone] = return_square_cone(theta_d, d, C_CB);
-MPCStructure = getMPCStructure(BLACKMass, b_cone, R, Q, Q_final, u_max_scalar, kc, aTimesOVec, baseRate);
+MPCStructure = getMPCStructure(BLACKMass, b_cone, R, Q, Q_final, u_max_scalar, kc, aTimesOVec, 0.2);
 
 %%  Set the drop, initial, and home positions for each platform:
 

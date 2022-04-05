@@ -4,10 +4,14 @@ close all
 clear
 
 % Pick the file:
-% fileName = "CLVF_9_1.mat";
+fileName = "CLVF_9_1.mat";
 % fileName = "Saved Data/SimulationData_2022_4_1_22_52/dataPacket_SIM.mat";
 % fileName = "Saved Data/SimulationData_2022_4_1_23_15/dataPacket_SIM.mat";
-fileName = "Saved Data/SimulationData_2022_4_1_23_19/dataPacket_SIM.mat"; ... from slow sim [1 deg/s]
+% fileName = "Saved Data/SimulationData_2022_4_1_23_19/dataPacket_SIM.mat"; ... from slow sim [1 deg/s]
+% fileName = "Saved Data/SimulationData_2022_4_4_20_58/dataPacket_SIM.mat"; ... From the MPC at [1 deg/s]
+% fileName = "Saved Data/SimulationData_2022_4_4_21_27/dataPacket_SIM.mat"; ... From retuned MPC at [1 deg/s]
+
+
 data = load(fileName);
 
 try % Actual experiment data:
@@ -22,6 +26,7 @@ theta_d             = 30*d2r;           % Angle of the docking cone.
 d                   = [0.16;0.542;0];   % docking position.
 d_norm              = sqrt(sum(d.^2));  % Norm of the docking position.
 o_hat_prime         = [0;1;0];          % Orientation of the docking cone.
+chaser_m = 12.3341;
 
 left_cone_point = d + C3(theta_d)*o_hat_prime;
 right_cone_point = d + C3(-theta_d)*o_hat_prime;
@@ -58,6 +63,12 @@ chaser_pos = data(:, 25:27); % black
 target_spd = data(:, 8:10); % red
 chaser_spd = data(:, 28:30); % black
 
+% Forces:
+chaser_F = data(:,22:23);
+
+% Time:
+time = data(:,1);
+
 % Clear out any indicies where we are all zeros:
 bad_indicies = (target_pos(:,1) == 0);
 
@@ -66,6 +77,8 @@ target_pos = target_pos(~bad_indicies,:);
 chaser_pos = chaser_pos(~bad_indicies,:);
 target_spd = target_spd(~bad_indicies,:);
 chaser_spd = chaser_spd(~bad_indicies,:);
+chaser_F = chaser_F(~bad_indicies, :);
+time = time(~bad_indicies, :);
 
 % How many points is this?
 n_points = size(target_spd, 1);
@@ -89,6 +102,19 @@ for i = 1:n_points
     % Fill in the relative position matrix:
     relative_position_body(i,1) = pos_bf(1);
     relative_position_body(i,2) = pos_bf(2);
+end
+
+%% GET THE TOTAL FUEL USAGE FOR BLACK [DELTA V]:
+acc_norm = zeros(n_points, 1);
+delta_v = zeros(n_points, 1);
+
+for i = 1:n_points
+    acc_norm(i) = sqrt(sum(chaser_F(i,:).^2))/chaser_m;
+    if i == 1
+        delta_v(i) = acc_norm(i)*0.05; % Assuming running at 20Hz.
+    else
+        delta_v(i) = delta_v(i-1) + acc_norm(i)*0.05;
+    end
 end
 
 %% PLOT:
@@ -122,3 +148,12 @@ xlabel("X Position (m)");
 ylabel("Y Position (m)");
 axis equal;
 legend();
+
+% Plot showing delta-v expendature over time:
+figure
+plot(time, delta_v);
+grid on
+hold on
+xlabel("Time (s)")
+ylabel("Delta V")
+title("Delta V over time");
