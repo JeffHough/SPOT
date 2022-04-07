@@ -244,7 +244,7 @@ den_d = sys_d.den{1};
 %% TARGET SPACECRAFT PHYSICAL CHARACTERISTICS: 
 % PARAMETERS I CANNOT CHANGE (physical characteristics of target).
 theta_d             = 30*d2r;           % Angle of the docking cone.
-d                   = [0.16;0.542;0];   % docking position.
+d                   = [0.1611;0.4354;0];   % docking position.
 d_norm              = sqrt(sum(d.^2));  % Norm of the docking position.
 o_hat_prime         = [0;1;0];          % Orientation of the docking cone.
 

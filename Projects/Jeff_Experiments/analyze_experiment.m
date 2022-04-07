@@ -4,12 +4,16 @@ close all
 clear
 
 % Pick the file:
-fileName = "CLVF_9_1.mat";
+% fileName = "CLVF_5_2.mat";
+% fileName = "CLVF_5__stitched.mat";
+% fileName = "CLVF_1_1.mat";
+fileName = "Saved Data/SimulationData_2022_4_6_21_24/dataPacket_SIM.mat";
 % fileName = "Saved Data/SimulationData_2022_4_1_22_52/dataPacket_SIM.mat";
 % fileName = "Saved Data/SimulationData_2022_4_1_23_15/dataPacket_SIM.mat";
 % fileName = "Saved Data/SimulationData_2022_4_1_23_19/dataPacket_SIM.mat"; ... from slow sim [1 deg/s]
 % fileName = "Saved Data/SimulationData_2022_4_4_20_58/dataPacket_SIM.mat"; ... From the MPC at [1 deg/s]
 % fileName = "Saved Data/SimulationData_2022_4_4_21_27/dataPacket_SIM.mat"; ... From retuned MPC at [1 deg/s]
+% fileName = "Saved Data/SimulationData_2022_4_6_19_43/dataPacket_SIM.mat";
 
 
 data = load(fileName);
@@ -23,7 +27,7 @@ end
 % PARAMETERS I CANNOT CHANGE (physical characteristics of target).
 d2r = pi/180;
 theta_d             = 30*d2r;           % Angle of the docking cone.
-d                   = [0.16;0.542;0];   % docking position.
+d                   = [0.1611;0.4354;0];   % docking position.
 d_norm              = sqrt(sum(d.^2));  % Norm of the docking position.
 o_hat_prime         = [0;1;0];          % Orientation of the docking cone.
 chaser_m = 12.3341;
